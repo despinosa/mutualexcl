@@ -1,22 +1,23 @@
 package mx.ipn.escom.supernaut.mutualexcl;
 
+
 import java.lang.Thread;
-import java.util.concurrent.locks.Lock;
 
 /**
  * Proceso abstracto del sistema distribuido. Ejecuta un mecanismo de
- * exclusión mutua por implementar. A la vez, pregunta constantemente
- * si se requiere el acceso a la región crítica. De requerirse, llama
- * al mecanismo de exclusión y al tener el recurso, lo bloquea hasta
- * que el usuario indique.
+ * exclusión mutua por implementar. A la vez, y en otro hilo simula la
+ * una función que ocupa a ratos la región crítica. Éste pregunta
+ * constantemente si se requiere el acceso a la región crítica. De
+ * requerirse, llama al mecanismo de exclusión y al tener el recurso,
+ * lo bloquea hasta que el usuario indique.
  *
  */
 public abstract class Process {
-    protected int logicalClock;
-    protected Lock lock;
     protected WorkThread work;
     protected AlgorithmThread algorithm;
     protected boolean stopped;
+
+    protected int clock();
 
 
     class WorkThread extends Thread {
@@ -34,15 +35,13 @@ public abstract class Process {
                 answer = scanner.nextLine();
                 if(answer.indexOf('y') > 0) {
                     algorithm.csRequested();
-                    lock.lock();
                     System.out.print("enter para liberar ");
                     scanner.nextLine();
-                    lock.unlock();
+                    algorithm.csFreed();
                 }
                 if(answer.indexOf('x') > 0) {
                     stopped = true;
                 }
-                logicalClock++;
             }
         }
     }
@@ -50,8 +49,9 @@ public abstract class Process {
 
     abstract class AlgorithmThread extends Thread {
         public void csRequested();
+        public void csFreed();
         public void run();
     }
 
-    public void start();
+    public void run();
 }
