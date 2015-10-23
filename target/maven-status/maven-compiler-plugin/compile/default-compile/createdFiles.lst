@@ -1,6 +1,6 @@
-mx/ipn/escom/supernaut/mutualexcl/Process$AlgorithmThread.class
-mx/ipn/escom/supernaut/mutualexcl/ElectionProcess$ElectionThread$Request.class
-mx/ipn/escom/supernaut/mutualexcl/ElectionProcess$ElectionThread.class
-mx/ipn/escom/supernaut/mutualexcl/ElectionProcess.class
-mx/ipn/escom/supernaut/mutualexcl/Process$WorkThread.class
-mx/ipn/escom/supernaut/mutualexcl/Process.class
+mx/ipn/escom/supernaut/mutualexcl/DistributedProcess$WorkThread.class
+mx/ipn/escom/supernaut/mutualexcl/election/ElectionProcess$ElectionThread.class
+mx/ipn/escom/supernaut/mutualexcl/DistributedProcess.class
+mx/ipn/escom/supernaut/mutualexcl/DistributedProcess$AlgorithmThread.class
+mx/ipn/escom/supernaut/mutualexcl/election/ElectionProcess.class
+mx/ipn/escom/supernaut/mutualexcl/election/ElectionProcess$Request.class

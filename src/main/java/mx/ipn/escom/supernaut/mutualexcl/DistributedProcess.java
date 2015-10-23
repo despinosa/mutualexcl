@@ -13,10 +13,10 @@ import java.util.Scanner;
  * lo bloquea hasta que el usuario indique.
  *
  */
-public abstract class Process {
-    WorkThread work;
-    AlgorithmThread algorithm;
-    boolean stopped;
+public abstract class DistributedProcess {
+    protected WorkThread work;
+    protected AlgorithmThread algorithm;
+    protected boolean stopped;
 
     public void run() {
         try {
@@ -30,10 +30,10 @@ public abstract class Process {
     }
 
 
-    class WorkThread extends Thread {
+    protected class WorkThread extends Thread {
         Scanner scanner;
 
-        WorkThread() {
+        public WorkThread() {
             scanner = new Scanner(System.in);
             stopped = false;
         }
@@ -57,9 +57,9 @@ public abstract class Process {
     }
 
 
-    abstract class AlgorithmThread extends Thread {
-        abstract void csRequested();
-        abstract void csFreed();
+    protected abstract class AlgorithmThread extends Thread {
+        public abstract void csRequested();
+        public abstract void csFreed();
         public abstract void run();
     }
 }

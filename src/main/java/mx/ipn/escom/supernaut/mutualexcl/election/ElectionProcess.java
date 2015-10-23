@@ -1,13 +1,13 @@
-package mx.ipn.escom.supernaut.mutualexcl;
+package mx.ipn.escom.supernaut.mutualexcl.election;
 
 
+import mx.ipn.escom.supernaut.mutualexcl.DistributedProcess;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.util.Comparator;
 import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.Scanner;
@@ -19,28 +19,22 @@ import java.util.concurrent.locks.ReentrantLock;
  * elección.
  *
  */
-public class ElectionProcess extends Process {
-    public ElectionProcess(String groupName, int groupPort, short totalPeers) {
-        work = new WorkThread();
-        try {
-            algorithm = new ElectionThread(groupName, groupPort, totalPeers);
-        } catch(IOException ex) {
-            System.err.println("error al inicializar hilo de algoritmos");
+public class ElectionProcess extends DistributedProcess {
+    class Request {
+        Integer pid;
+        Integer time;
+
+        Request(int pid, int time) {
+            this.pid = pid;
+            this.time = time;
+        }
+
+        public int compareTo(Request other) {
+            return this.time.compareTo(other.time);
         }
     }
 
-    public ElectionProcess(String groupName, int groupPort, short totalPeers,
-            boolean absolute) {
-        work = new WorkThread();
-        try {
-            algorithm = new ElectionThread(groupName, groupPort, totalPeers,
-                                           absolute);
-        } catch(IOException ex) {
-            System.err.println("error al inicializar hilo de algoritmos");
-        }
-    }
-
-    class ElectionThread extends Process.AlgorithmThread {
+    final class ElectionThread extends DistributedProcess.AlgorithmThread {
         final short totalPeers;
         final boolean absolute;
         final InetSocketAddress group;
@@ -55,7 +49,7 @@ public class ElectionProcess extends Process {
             return System.currentTimeMillis() / 1000l;
         }
 
-        void csRequested() {
+        public void csRequested() {
             String content;
             DatagramPacket packet;
             content = "REQUEST " + pid + " " + clock();
@@ -77,7 +71,7 @@ public class ElectionProcess extends Process {
             }
         }
 
-        void csFreed() {
+        public void csFreed() {
             final String content;
             DatagramPacket packet;
             content = "RELEASE";
@@ -88,14 +82,13 @@ public class ElectionProcess extends Process {
             } catch (IOException ex) {
                 System.err.println("error al enviar aviso de liberación");
             }
-            lock.unlock();
         }
 
         public void run() {
             DatagramPacket packet;
             byte[] buffer;
-            String[] split;
-            String out;
+            String[] query;
+            String reply;
             Request request;
             buffer = new byte[512];
             lock.lock();
@@ -106,29 +99,31 @@ public class ElectionProcess extends Process {
                 } catch (IOException ex) {
                     System.err.println("error al enviar aviso de liberación");
                 }
-                split = (new String(buffer).trim()).split(" ");
-                switch(split[0]) {
+                query = (new String(buffer).trim()).split(" ");
+                switch(query[0]) {
                     case "OK":
-                        if(Integer.parseInt(split[1]) == pid) {
+                        if(Integer.parseInt(query[1]) == pid) {
                             votes += 1;
                             if(absolute) {
                                 if(votes >= totalPeers-1) {
+                                    votes = 0;
                                     lock.unlock();
                                 }
                             } else {
                                 if(votes >= totalPeers/2+1) {
+                                    votes = 0;
                                     lock.unlock();
                                 }
                             }
                         }
                         break;
                     case "REQUEST":
-                        requests.offer(new Request(Integer.parseInt(split[1]),
-                                                   Integer.parseInt(split[2])));
+                        requests.offer(new Request(Integer.parseInt(query[1]),
+                                                   Integer.parseInt(query[2])));
                         if(available) {
                             request = requests.poll();
                             if(request != null) {
-                                out = "OK " + request.pid;
+                                reply = "OK " + request.pid;
                             }
                         }
                         break;
@@ -136,13 +131,21 @@ public class ElectionProcess extends Process {
                         available = true;
                         request = requests.poll();
                         if(request != null) {
-                            out = "OK " + request.pid;
+                            reply = "OK " + request.pid;
+                            packet = new DatagramPacket(reply.getBytes(),
+                                                        reply.length(),
+                                                        group);
+                            try {
+                                socket.send(packet);
+                            } catch (IOException ex) {
+                                System.err.println("error al enviar voto");
+                            }
                         }
                         break;
                     case "TAKEOVER":
                         available = false;
                         for(Request r : requests) {
-                            if(r.pid == Integer.parseInt(split[1])) {
+                            if(r.pid == Integer.parseInt(query[1])) {
                                 requests.remove(r);
                             }
                         }
@@ -185,23 +188,28 @@ public class ElectionProcess extends Process {
             socket.joinGroup(groupAddr);
             group = new InetSocketAddress(groupAddr, groupPort);
         }
+    }
 
 
-        class Request {
-            Integer pid;
-            Integer time;
-
-            Request(int pid, int time) {
-                this.pid = pid;
-                this.time = time;
-            }
-
-            public int compareTo(Request other) {
-                return this.time.compareTo(other.time);
-            }
+    public ElectionProcess(String groupName, int groupPort, short totalPeers) {
+        work = new WorkThread();
+        try {
+            algorithm = new ElectionThread(groupName, groupPort, totalPeers);
+        } catch(IOException ex) {
+            System.err.println("error al inicializar hilo de algoritmos");
         }
     }
 
+    public ElectionProcess(String groupName, int groupPort, short totalPeers,
+            boolean absolute) {
+        work = new WorkThread();
+        try {
+            algorithm = new ElectionThread(groupName, groupPort, totalPeers,
+                                           absolute);
+        } catch(IOException ex) {
+            System.err.println("error al inicializar hilo de algoritmos");
+        }
+    }
 
     public static void main(String[] args) {
         ElectionProcess process;
