@@ -1,1 +1,6 @@
-mx/ipn/escom/supernaut/mutualexcl/App.class
+mx/ipn/escom/supernaut/mutualexcl/Process$AlgorithmThread.class
+mx/ipn/escom/supernaut/mutualexcl/ElectionProcess$ElectionThread$Request.class
+mx/ipn/escom/supernaut/mutualexcl/ElectionProcess$ElectionThread.class
+mx/ipn/escom/supernaut/mutualexcl/ElectionProcess.class
+mx/ipn/escom/supernaut/mutualexcl/Process$WorkThread.class
+mx/ipn/escom/supernaut/mutualexcl/Process.class

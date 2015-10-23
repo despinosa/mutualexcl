@@ -2,6 +2,7 @@ package mx.ipn.escom.supernaut.mutualexcl;
 
 
 import java.lang.Thread;
+import java.util.Scanner;
 
 /**
  * Proceso abstracto del sistema distribuido. Ejecuta un mecanismo de
@@ -13,17 +14,26 @@ import java.lang.Thread;
  *
  */
 public abstract class Process {
-    protected WorkThread work;
-    protected AlgorithmThread algorithm;
-    protected boolean stopped;
+    WorkThread work;
+    AlgorithmThread algorithm;
+    boolean stopped;
 
-    protected int clock();
+    public void run() {
+        try {
+            work.start();
+            algorithm.start();
+            work.join();
+            algorithm.join();
+        } catch(InterruptedException ex) {
+            System.err.println("hilo interrumpido");
+        }
+    }
 
 
     class WorkThread extends Thread {
         Scanner scanner;
 
-        public WorkThread() {
+        WorkThread() {
             scanner = new Scanner(System.in);
             stopped = false;
         }
@@ -48,10 +58,8 @@ public abstract class Process {
 
 
     abstract class AlgorithmThread extends Thread {
-        public void csRequested();
-        public void csFreed();
-        public void run();
+        abstract void csRequested();
+        abstract void csFreed();
+        public abstract void run();
     }
-
-    public void run();
 }
