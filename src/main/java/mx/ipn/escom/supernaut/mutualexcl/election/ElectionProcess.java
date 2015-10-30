@@ -1,6 +1,7 @@
 package mx.ipn.escom.supernaut.mutualexcl.election;
 
 
+import mx.ipn.escom.supernaut.mutualexcl.CSRequest;
 import mx.ipn.escom.supernaut.mutualexcl.DistributedProcess;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,20 +21,6 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 public class ElectionProcess extends DistributedProcess {
-    class Request {
-        Integer pid;
-        Integer time;
-
-        Request(int pid, int time) {
-            this.pid = pid;
-            this.time = time;
-        }
-
-        public int compareTo(Request other) {
-            return this.time.compareTo(other.time);
-        }
-    }
-
     final class ElectionThread extends DistributedProcess.AlgorithmThread {
         final short totalPeers;
         final boolean absolute;
@@ -43,7 +30,7 @@ public class ElectionProcess extends DistributedProcess {
         Lock lock;
         boolean available;
         MulticastSocket socket;
-        Queue<Request> requests;
+        Queue<CSRequest> requests;
 
         long clock() {
             return System.currentTimeMillis() / 1000l;
@@ -89,7 +76,7 @@ public class ElectionProcess extends DistributedProcess {
             byte[] buffer;
             String[] query;
             String reply;
-            Request request;
+            CSRequest request;
             buffer = new byte[512];
             lock.lock();
             while(!stopped) {
@@ -118,7 +105,7 @@ public class ElectionProcess extends DistributedProcess {
                         }
                         break;
                     case "REQUEST":
-                        requests.offer(new Request(Integer.parseInt(query[1]),
+                        requests.offer(new CSRequest(Integer.parseInt(query[1]),
                                                    Integer.parseInt(query[2])));
                         if(available) {
                             request = requests.poll();
@@ -144,7 +131,7 @@ public class ElectionProcess extends DistributedProcess {
                         break;
                     case "TAKEOVER":
                         available = false;
-                        for(Request r : requests) {
+                        for(CSRequest r : requests) {
                             if(r.pid == Integer.parseInt(query[1])) {
                                 requests.remove(r);
                             }
