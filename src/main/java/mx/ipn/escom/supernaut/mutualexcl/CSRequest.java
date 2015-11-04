@@ -2,10 +2,10 @@ package mx.ipn.escom.supernaut.mutualexcl;
 
 
 public class CSRequest {
-    Integer pid;
-    Integer time;
+    public final Integer pid;
+    public final Long time;
 
-    public CSRequest(int pid, int time) {
+    public CSRequest(int pid, long time) {
         this.pid = pid;
         this.time = time;
     }

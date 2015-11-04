@@ -9,10 +9,9 @@ import java.net.InetSocketAddress;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.util.Queue;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Scanner;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -27,7 +26,6 @@ public class ElectionProcess extends DistributedProcess {
         final InetSocketAddress group;
         int pid;
         short votes;
-        Lock lock;
         boolean available;
         MulticastSocket socket;
         Queue<CSRequest> requests;
@@ -105,8 +103,9 @@ public class ElectionProcess extends DistributedProcess {
                         }
                         break;
                     case "REQUEST":
-                        requests.offer(new CSRequest(Integer.parseInt(query[1]),
-                                                   Integer.parseInt(query[2])));
+                        requests.offer(new CSRequest(Integer.parseInt(query[1]), 
+                                                     Integer.parseInt(query[2]))
+                                      );
                         if(available) {
                             request = requests.poll();
                             if(request != null) {

@@ -3,6 +3,7 @@ package mx.ipn.escom.supernaut.mutualexcl;
 
 import java.lang.Thread;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Proceso abstracto del sistema distribuido. Ejecuta un mecanismo de
@@ -16,6 +17,7 @@ import java.util.Scanner;
 public abstract class DistributedProcess {
     protected WorkThread work;
     protected AlgorithmThread algorithm;
+    protected Lock lock;
     protected boolean stopped;
 
     public void run() {

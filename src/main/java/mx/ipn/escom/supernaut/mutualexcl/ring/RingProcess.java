@@ -7,9 +7,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
 
-public class RingProcess extends DistributedProcess {
+public class RingProcess extends DistributedProcess { /*
     final class RingThread extends DistributedProcess.AlgorithmThread {
-        Lock lock;
-        Client 
-    }
+    } */
 }
