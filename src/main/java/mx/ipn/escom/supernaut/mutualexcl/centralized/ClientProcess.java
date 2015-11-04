@@ -12,7 +12,6 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
 
 public class ClientProcess extends DistributedProcess {
-    Client client;
     int pid;
 
 
@@ -34,6 +33,8 @@ public class ClientProcess extends DistributedProcess {
 
 
     final class ClientThread extends DistributedProcess.AlgorithmThread {
+        Client client;
+
         long clock() {
             return System.currentTimeMillis() / 1000l;
         }
@@ -60,5 +61,25 @@ public class ClientProcess extends DistributedProcess {
             client.addListener(new ClientListener());
             client.connect(5000, host, Network.port);
         }
+    }
+
+
+    public ClientProcess(String host) {
+        work = new WorkThread();
+        try {
+            algorithm = new ClientThread(host);
+        } catch(IOException e) {
+            System.err.println("error al inicializar hilo del algoritmo");
+        }
+    }
+
+    public static void main(String[] args) {
+        ClientProcess process;
+        if(args.length < 1) {
+            System.out.println("uso: ClientProcess <host>");
+            return;
+        }
+        process = new ClientProcess(args[0]);
+        process.run();
     }
 }

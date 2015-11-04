@@ -182,7 +182,7 @@ public class ElectionProcess extends DistributedProcess {
         try {
             algorithm = new ElectionThread(groupName, groupPort, totalPeers);
         } catch(IOException ex) {
-            System.err.println("error al inicializar hilo de algoritmos");
+            System.err.println("error al inicializar hilo del algoritmo");
         }
     }
 
@@ -193,7 +193,7 @@ public class ElectionProcess extends DistributedProcess {
             algorithm = new ElectionThread(groupName, groupPort, totalPeers,
                                            absolute);
         } catch(IOException ex) {
-            System.err.println("error al inicializar hilo de algoritmos");
+            System.err.println("error al inicializar hilo del algoritmo");
         }
     }
 
@@ -203,7 +203,8 @@ public class ElectionProcess extends DistributedProcess {
             System.out.println("uso: ElectionProcess <groupName> <groupPort>" +
                                " <totalPeers> <absolute>");
             return;
-        } else if(args.length > 3) {
+        }
+        if(args.length > 3) {
             process = new ElectionProcess(args[0], Integer.parseInt(args[1]),
                                           Short.parseShort(args[2]));
         } else {
@@ -211,5 +212,6 @@ public class ElectionProcess extends DistributedProcess {
                                           Short.parseShort(args[2]),
                                           Boolean.parseBoolean(args[3]));
         }
+        process.run();
     }
 }
