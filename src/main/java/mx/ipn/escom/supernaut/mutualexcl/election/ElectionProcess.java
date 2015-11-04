@@ -104,7 +104,7 @@ public class ElectionProcess extends DistributedProcess {
                         break;
                     case "REQUEST":
                         requests.offer(new CSRequest(Integer.parseInt(query[1]), 
-                                                     Integer.parseInt(query[2]))
+                                                     Long.parseLong(query[2]))
                                       );
                         if(available) {
                             request = requests.poll();
